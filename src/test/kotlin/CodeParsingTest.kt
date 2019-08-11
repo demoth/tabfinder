@@ -1,6 +1,6 @@
 package org.demoth
 
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CodeParsingTest {
@@ -8,29 +8,29 @@ class CodeParsingTest {
     @Test
     fun `test empty`() {
         val code = ""
-        Assert.assertEquals(FileIndentInfo(lines = 1), testAnalyzeCode(code))
+        assertEquals(FileIndentInfo(lines = 1), testAnalyzeCode(code))
     }
 
     @Test
     fun `test one line`() {
-        val code = "hello world"
-        Assert.assertEquals(FileIndentInfo(lines = 1), testAnalyzeCode(code))
+        val code = "hello world;"
+        assertEquals(FileIndentInfo(lines = 1), testAnalyzeCode(code))
     }
 
     @Test
     fun `test one line not formatted`() {
-        val code = "  hello world"
-        Assert.assertEquals(FileIndentInfo(lines = 1, notFormatted = 1), testAnalyzeCode(code))
+        val code = "  hello world;"
+        assertEquals(FileIndentInfo(lines = 1, notFormatted = 1), testAnalyzeCode(code))
     }
 
     @Test
     fun `test simple indents`() {
         val code = """
             function {
-                do something
+                do something;
             }
         """.trimIndent()
-        Assert.assertEquals(FileIndentInfo(0, 0, 3), testAnalyzeCode(code))
+        assertEquals(FileIndentInfo(0, 0, 3), testAnalyzeCode(code))
     }
 
     @Test
@@ -38,34 +38,54 @@ class CodeParsingTest {
         val code = """
             function {
                 if it works {
-                    do it
+                    do it;
                 }
             }
         """.trimIndent()
-        Assert.assertEquals(FileIndentInfo(0, 0, 5), testAnalyzeCode(code))
+        assertEquals(FileIndentInfo(0, 0, 5), testAnalyzeCode(code))
+    }
+
+    @Test
+    fun `test annotation indents`() {
+        val code = """
+            @Test
+            function {
+                do the needful;
+            }
+        """.trimIndent()
+        assertEquals(FileIndentInfo(0, 0, 4), testAnalyzeCode(code))
     }
 
     @Test
     fun `test if else`() {
         val code = """
             if one thing {
-                hello
+                hello;
             } else {
-                world                
+                world;
             }
         """.trimIndent()
-        Assert.assertEquals(FileIndentInfo(0, 0, 5), testAnalyzeCode(code))
+        assertEquals(FileIndentInfo(0, 0, 5), testAnalyzeCode(code))
     }
 
     @Test
     fun `test one block not formatted`() {
         val code = """
             if whatever {
-            fail
-             another fail   
+            fail;
+             another fail;
             }
         """.trimIndent()
-        Assert.assertEquals(FileIndentInfo(2, 0, 4), testAnalyzeCode(code))
+        assertEquals(FileIndentInfo(2, 0, 4), testAnalyzeCode(code))
+    }
+
+    @Test
+    fun `test indent continuation`() {
+        val code = """
+            Integer variable = 1004903 +
+                    39203948;
+        """.trimIndent()
+        assertEquals(FileIndentInfo(0, 0, 2), testAnalyzeCode(code))
     }
 
     private fun testAnalyzeCode(code: String): FileIndentInfo {
