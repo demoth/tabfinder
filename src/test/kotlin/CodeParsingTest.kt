@@ -57,6 +57,17 @@ class CodeParsingTest {
     }
 
     @Test
+    fun `test comments indents`() {
+        val code = """
+            function {
+                // my comment
+                do the needful;
+            }
+        """.trimIndent()
+        assertEquals(FileIndentInfo(0, 0, 4), testAnalyzeCode(code))
+    }
+
+    @Test
     fun `test if else`() {
         val code = """
             if one thing {

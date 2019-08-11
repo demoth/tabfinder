@@ -34,7 +34,7 @@ fun analyzeFile(file: File): FileIndentInfo {
 
 fun analyzeLine(info: FileIndentInfo, line: String) {
     info.lines++
-    if (line.isBlank())
+    if (line.isBlank() or fistChars(line, "//"))
         return
 
     if (firstChar(line) == '}')
@@ -68,6 +68,15 @@ private fun continuation(lastChar: Char, line: String) =
 private fun lastChar(line: String) = line.last { it != ' ' && it != '\t' }
 
 private fun firstChar(line: String) = line.first { it != ' ' && it != '\t' }
+
+// prefix does not contain spaces
+fun fistChars(line: String, prefix: String): Boolean {
+    if (prefix.isEmpty())
+        return true
+    if (line.isEmpty())
+        return false
+    return line.trim().startsWith(prefix)
+}
 
 fun indent(str: String): Int {
     var i = 0

@@ -24,4 +24,19 @@ class IndentTest {
         assertEquals(1, indent("\tpublic class Tabfinder {"))
     }
 
+    @Test
+    fun testCommentInFirstChars() {
+        assertEquals(true, fistChars("\t\t //public class Tabfinder {", "//"))
+    }
+
+    @Test
+    fun testEmptyLineFirstChars() {
+        assertEquals(false, fistChars("\t\t ", "//"))
+    }
+
+    @Test
+    fun testCommentInFirstCharsNegative() {
+        assertEquals(false, fistChars("\t\t p//public class Tabfinder {", "//"))
+    }
+
 }
