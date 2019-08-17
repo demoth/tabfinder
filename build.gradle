@@ -12,6 +12,7 @@ repositories {
 dependencies {
     testImplementation "junit:junit:4.12"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 }
 
 compileKotlin {

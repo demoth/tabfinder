@@ -1,19 +1,31 @@
 package org.demoth
 
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.lang.Integer.max
+
+val logger = LoggerFactory.getLogger("Tabfinder")
 
 fun main(args: Array<String>) {
     if (args.size != 1) {
         println("Usage: tabfinder <src_folder>")
         return
     }
-
+    var stats = Statistics()
     File(args[0]).walkTopDown().forEach { file ->
-        if (file.isFile && file.name.endsWith(".java"))
-            println("$file - ${analyzeFile(file)}")
+        if (file.isFile && file.name.endsWith(".java")) {
+            println("$file - ${analyzeFile(file, stats)}")
+            stats.files++
+            logger.debug("Analysed {} files. Found {} issues", stats.files, stats.notFormatted)
+        }
     }
 }
+
+data class Statistics(
+    var files: Int = 0,
+    var lines: Int = 0,
+    var notFormatted: Int = 0
+)
 
 data class FileIndentInfo(
     var notFormatted: Int = 0,
@@ -24,11 +36,13 @@ data class FileIndentInfo(
     val defaultContinuation: Int = 8
 )
 
-fun analyzeFile(file: File): FileIndentInfo {
+fun analyzeFile(file: File, stats: Statistics): FileIndentInfo {
     val info = FileIndentInfo()
     file.forEachLine { line ->
         analyzeLine(info, line)
     }
+    stats.lines += info.lines
+    stats.notFormatted += info.notFormatted
     return info
 }
 
