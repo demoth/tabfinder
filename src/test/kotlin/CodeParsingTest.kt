@@ -91,6 +91,34 @@ class CodeParsingTest {
     }
 
     @Test
+    fun `test one line not formatted but next is fine`() {
+        val code = """
+            if whatever {
+            fail;
+                another fail;
+            }
+        """.trimIndent()
+        assertEquals(FileIndentInfo(1, 0, 4), testAnalyzeCode(code))
+    }
+
+    @Test
+    fun `test if without curly braces`() {
+        val code = """
+            if whatever 
+                this line is fine;
+        """.trimIndent()
+        assertEquals(FileIndentInfo(1, 0, 2), testAnalyzeCode(code))
+    }
+
+    @Test
+    fun `test one-line if no curly braces`() {
+        val code = """
+            if whatever this line is fine;
+        """.trimIndent()
+        assertEquals(FileIndentInfo(0, 0, 1), testAnalyzeCode(code))
+    }
+
+    @Test
     fun `test indent continuation`() {
         val code = """
             Integer variable = 1004903 +
