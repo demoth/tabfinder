@@ -32,6 +32,7 @@ data class FileIndentInfo(
     var currentIndent: Int = 0,
     var lines: Int = 0,
     var continuation: Boolean = false,
+    var multiLineComment: Boolean = false,
     val defaultIndent: Int = 4,
     val defaultContinuation: Int = 8
 )
@@ -48,27 +49,51 @@ fun analyzeFile(file: File, stats: Statistics): FileIndentInfo {
 
 fun analyzeLine(info: FileIndentInfo, line: String) {
     info.lines++
-    if (line.isBlank() or fistChars(line, "//"))
+    if (line.isBlank() or firstChars(line, "//"))
         return
 
-    if (firstChar(line) == '}')
+    // we are inside of the multiline comment: check if it has ended
+    if (info.multiLineComment) {
+        if (line.contains("*/")) {
+            info.multiLineComment = false
+            // if it contains some code, this line is not properly formatted
+            if (!line.endsWith("*/")) {
+                info.notFormatted++
+            }
+        }
+        return
+    }
+
+    // check if multiline comment has started
+    if (line.contains("/*")) {
+        info.multiLineComment = true
+        // if it contains some code before the comment, this line is not properly formatted
+        if (!firstChars(line, "/*")) {
+            info.notFormatted++
+        }
+        return
+    }
+
+    val codeLine: String = line.split("//")[0]
+
+    if (firstChar(codeLine) == '}')
         info.currentIndent = max(0, info.currentIndent - info.defaultIndent)
 
-    val lastChar = lastChar(line)
+    val lastChar = lastChar(codeLine)
     if (info.continuation) {
-        if (indent(line) != info.currentIndent + info.defaultContinuation) {
-            println("Bad indent continuation [$info], $line")
+        if (indent(codeLine) != info.currentIndent + info.defaultContinuation) {
+            println("Bad indent continuation [$info], $codeLine")
             info.notFormatted++
         }
         if (lastChar == ';')
             info.continuation = false
 
     } else {
-        if (indent(line) != info.currentIndent) {
-            println("Bad indent: line [$info], $line")
+        if (indent(codeLine) != info.currentIndent) {
+            println("Bad indent: line [$info], $codeLine")
             info.notFormatted++
         }
-        if (continuation(lastChar, line))
+        if (continuation(lastChar, codeLine))
             info.continuation = true
     }
 
@@ -84,7 +109,7 @@ private fun lastChar(line: String) = line.last { it != ' ' && it != '\t' }
 private fun firstChar(line: String) = line.first { it != ' ' && it != '\t' }
 
 // prefix does not contain spaces
-fun fistChars(line: String, prefix: String): Boolean {
+fun firstChars(line: String, prefix: String): Boolean {
     if (prefix.isEmpty())
         return true
     if (line.isEmpty())

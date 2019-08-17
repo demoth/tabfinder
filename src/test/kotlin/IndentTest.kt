@@ -26,17 +26,17 @@ class IndentTest {
 
     @Test
     fun testCommentInFirstChars() {
-        assertEquals(true, fistChars("\t\t //public class Tabfinder {", "//"))
+        assertEquals(true, firstChars("\t\t //public class Tabfinder {", "//"))
     }
 
     @Test
     fun testEmptyLineFirstChars() {
-        assertEquals(false, fistChars("\t\t ", "//"))
+        assertEquals(false, firstChars("\t\t ", "//"))
     }
 
     @Test
     fun testCommentInFirstCharsNegative() {
-        assertEquals(false, fistChars("\t\t p//public class Tabfinder {", "//"))
+        assertEquals(false, firstChars("\t\t p//public class Tabfinder {", "//"))
     }
 
 }

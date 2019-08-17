@@ -110,6 +110,47 @@ class CodeParsingTest {
         assertEquals(FileIndentInfo(1, 0, 2), testAnalyzeCode(code))
     }
 
+
+    @Test
+    fun `test multi-line comment is ignored`() {
+        val code = """
+              /*****88888
+                    *
+             *
+            skdjf
+                ***/
+            
+            this line is fine;
+        """.trimIndent()
+        assertEquals(FileIndentInfo(0, 0, 7), testAnalyzeCode(code))
+    }
+
+    @Test
+    fun `test multi-line comment is started and ended unexpectedly`() {
+        val code = """
+            some normal stuff;  /*****88888
+                    *
+             *
+            skdjf
+                ***/ here we are;
+            
+            this line is fine;
+        """.trimIndent()
+        assertEquals(FileIndentInfo(2, 0, 7), testAnalyzeCode(code))
+    }
+
+    @Test
+    fun `test one-line comment inside the string`() {
+        val code = """
+            if one thing {
+                hello; // we need to say hello
+            } else {
+                world;
+            }
+        """.trimIndent()
+        assertEquals(FileIndentInfo(0, 0, 5), testAnalyzeCode(code))
+    }
+
     @Test
     fun `test one-line if no curly braces`() {
         val code = """
